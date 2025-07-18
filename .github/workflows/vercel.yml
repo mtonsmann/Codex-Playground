@@ -1,0 +1,25 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+      - name: Install Vercel CLI
+        run: npm install --global vercel
+      - name: Deploy Preview
+        run: vercel --token ${{ secrets.VERCEL_TOKEN }} --org ${{ secrets.VERCEL_ORG_ID }} --project ${{ secrets.VERCEL_PROJECT_ID }} --yes
+      - name: Deploy Production
+        if: github.ref == 'refs/heads/main'
+        run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --org ${{ secrets.VERCEL_ORG_ID }} --project ${{ secrets.VERCEL_PROJECT_ID }} --yes
+      - name: Echo URL
+        run: |
+          echo "Deploy URL:" $(vercel ls --token ${{ secrets.VERCEL_TOKEN }} | head -n 1)
